@@ -9,9 +9,9 @@ def load_data(filepath):
     return False
 
 
-def get_biggest_bar(data):
+def get_biggest_bar(bars_json):
     bars_list = []
-    for feature in data['features']:
+    for feature in bars_json['features']:
         bar_name = feature['properties']['Attributes']['Name']
         seats_count = feature['properties']['Attributes']['SeatsCount']
         bars_list.append((bar_name, seats_count))
@@ -19,9 +19,9 @@ def get_biggest_bar(data):
     return biggest_bar[0]
 
 
-def get_smallest_bar(data):
+def get_smallest_bar(bars_json):
     bars_list = []
-    for feature in data['features']:
+    for feature in bars_json['features']:
         bar_name = feature['properties']['Attributes']['Name']
         seats_count = feature['properties']['Attributes']['SeatsCount']
         bars_list.append((bar_name, seats_count))
@@ -29,9 +29,9 @@ def get_smallest_bar(data):
     return smallest_bar[0]
 
 
-def get_closest_bar(data, longitude, latitude):
+def get_closest_bar(bars_json, longitude, latitude):
     bars_list = []
-    for feature in data['features']:
+    for feature in bars_json['features']:
         bar_name = feature['properties']['Attributes']['Name']
         bar_longitude, bar_latitude = feature['geometry']['coordinates']
         distance = ((longitude - float(bar_longitude))**2 +
@@ -41,25 +41,32 @@ def get_closest_bar(data, longitude, latitude):
     return closest_bar[0]
 
 
+def coordinate_to_float(coordinate_str):
+    try:
+        coordinate = float(coordinate_str)
+        return coordinate
+    except ValueError as e:
+        return False
+
+
+def process_bars(bars_json):
+    print('Biggest bar is:', get_biggest_bar(bars_json))
+    print('Smallest bar is:', get_smallest_bar(bars_json))
+
+    longitude = coordinate_to_float(input('Input your longitude: '))
+    latitude = coordinate_to_float(input('Input your latitude: '))
+
+    if longitude and latitude:
+        print('Closest bar is:',
+              get_closest_bar(bars_json, longitude, latitude))
+    else:
+        print('Wrong coordinates')
+
+
 if __name__ == '__main__':
     filepath = input('Input file path or "bars.json" is used: ')
-    data = load_data(filepath) or load_data('bars.json')
-    if data:
-        print('Biggest bar is:', get_biggest_bar(data))
-        print('Smallest bar is:', get_smallest_bar(data))
-
-        try:
-            longitude = float(input('Input your longitude: '))
-        except ValueError:
-            print('Incorrect input, using 0 as longitude')
-            longitude = 0
-
-        try:
-            latitude = float(input('Input your latitude: '))
-        except ValueError:
-            print('Incorrect input, using 0 as latitude')
-            latitude = 0
-
-        print('Closest bar is:', get_closest_bar(data, longitude, latitude))
+    bars_json = load_data(filepath) or load_data('bars.json')
+    if bars_json:
+        process_bars(bars_json)
     else:
         print('Wrong file or path')
