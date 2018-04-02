@@ -46,37 +46,37 @@ def coordinate_to_float(coordinate_str):
         return None
 
 
+def get_bar_name(bar):
+    return bar['properties']['Attributes']['Name']
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('No path specified')
-        exit()
+        sys.exit('No path specified')
 
     filepath = sys.argv[1]
     bars_dict = load_data(filepath)
     if bars_dict is None:
-        print('Wrong file')
-        exit()
+        sys.exit('Wrong file')
 
     bars_list = bars_dict['features']
 
     print(
         'Biggest bar name is:',
-        get_biggest_bar(bars_list)['properties']['Attributes']['Name']
+        get_bar_name(get_biggest_bar(bars_list))
     )
 
     print(
         'Smallest bar name is:',
-        get_smallest_bar(bars_list)['properties']['Attributes']['Name']
+        get_bar_name(get_smallest_bar(bars_list))
     )
 
     longitude = coordinate_to_float(input('Input your longitude: '))
     latitude = coordinate_to_float(input('Input your latitude: '))
     if not (longitude and latitude):
-        print('Wrong coordinates')
-        exit()
+        sys.exit('Wrong coordinates')
 
     print(
         'Closest bar name is:',
-        get_closest_bar(bars_list, longitude, latitude)
-        ['properties']['Attributes']['Name']
+        get_bar_name(get_closest_bar(bars_list, longitude, latitude))
     )

@@ -9,10 +9,15 @@
 Скрипт требует для своей работы установленного интерпретатора Python версии 3.5
 
 Запуск на Linux:
+```bash
+$ python bars.py <path to file> # possibly requires call of python3 executive instead of just python
+```
+
+### Пример запуска на Linux
 
 ```bash
 
-$ python bars.py bars.json # possibly requires call of python3 executive instead of just python
+$ python bars.py bars.json
 Biggest bar name is: Спорт бар «Красная машина»
 Smallest bar name is: БАР. СОКИ
 Input your longitude: 37.621587946152012
