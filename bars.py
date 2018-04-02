@@ -5,32 +5,36 @@ import sys
 
 def load_data(filepath):
     if os.path.exists(filepath):
-        with open(filepath, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return False
+        with open(filepath, 'r', encoding='utf-8') as bars_file:
+            return json.load(bars_file)
+    return None
 
 
 def get_biggest_bar(bars_list):
-    biggest_bar = max(bars_list, key=lambda item:
-                      item['properties']['Attributes']['SeatsCount'])
+    biggest_bar = max(
+        bars_list,
+        key=lambda item: item['properties']['Attributes']['SeatsCount']
+    )
     return biggest_bar
 
 
 def get_smallest_bar(bars_list):
-    smallest_bar = min(bars_list, key=lambda item:
-                       item['properties']['Attributes']['SeatsCount'])
+    smallest_bar = min(
+        bars_list,
+        key=lambda item: item['properties']['Attributes']['SeatsCount']
+    )
     return smallest_bar
 
 
 def get_closest_bar(bars_list, longitude, latitude):
-    biggest_distance = 40000
-    closest_bar = ''
-    for bar in bars_list:
-        distance = ((longitude - bar['geometry']['coordinates'][0])**2 +
-                    (latitude - bar['geometry']['coordinates'][1])**2)**(1 / 2)
-        if distance < biggest_distance:
-            biggest_distance = distance
-            closest_bar = bar
+    closest_bar = min(
+        bars_list,
+        key=lambda item:
+        (
+            (longitude - item['geometry']['coordinates'][0])**2 +
+            (latitude - item['geometry']['coordinates'][1])**2
+        )**(1 / 2)
+    )
     return closest_bar
 
 
@@ -39,29 +43,40 @@ def coordinate_to_float(coordinate_str):
         coordinate = float(coordinate_str)
         return coordinate
     except ValueError:
-        return False
+        return None
 
 
 if __name__ == '__main__':
-    filepath = 'bars.json'
-    if len(sys.argv) > 1:
-        filepath = sys.argv[1]
+    if len(sys.argv) < 2:
+        print('No path specified')
+        exit()
 
-    bars_list = load_data(filepath)['features']
-    if bars_list:
+    filepath = sys.argv[1]
+    bars_dict = load_data(filepath)
+    if bars_dict is None:
+        print('Wrong file')
+        exit()
 
-        print('Biggest bar is:', get_biggest_bar(bars_list))
-        print('Smallest bar is:', get_smallest_bar(bars_list))
+    bars_list = bars_dict['features']
 
-        longitude = coordinate_to_float(input('Input your longitude: '))
-        latitude = coordinate_to_float(input('Input your latitude: '))
+    print(
+        'Biggest bar name is:',
+        get_biggest_bar(bars_list)['properties']['Attributes']['Name']
+    )
 
-        if longitude and latitude:
-            print('Closest bar is:',
-                  get_closest_bar(bars_list, longitude, latitude))
+    print(
+        'Smallest bar name is:',
+        get_smallest_bar(bars_list)['properties']['Attributes']['Name']
+    )
 
-        else:
-            print('Wrong coordinates')
+    longitude = coordinate_to_float(input('Input your longitude: '))
+    latitude = coordinate_to_float(input('Input your latitude: '))
+    if not (longitude and latitude):
+        print('Wrong coordinates')
+        exit()
 
-    else:
-        print('Wrong file or path')
+    print(
+        'Closest bar name is:',
+        get_closest_bar(bars_list, longitude, latitude)
+        ['properties']['Attributes']['Name']
+    )
